@@ -1,0 +1,187 @@
+import { fmt as f } from '../../game/medal'
+import type { Metric } from '../../game/types'
+import { AU_KM, G0, SOLAR_CONSTANT, SPEED_OF_LIGHT } from '../../physics/model'
+import { JUPITER_AU, type Design, type Result } from './model'
+
+type M = Metric<Design, Result>
+
+export const JUNO_METRICS: Record<string, M> = {
+  sunlight: {
+    id: 'sunlight',
+    label: 'Sunlight at Jupiter',
+    unit: '× weaker',
+    question: () => 'Jupiter is 5.2 times farther from the Sun than Earth. How many times weaker is the sunlight there?',
+    min: 1,
+    max: 1000,
+    truth: (_, r) => r.sunlightFactor,
+    formula: () => ({
+      title: 'Inverse-square law',
+      expr: 'times weaker = d²',
+      vars: [{ name: 'd', value: JUPITER_AU, unit: '× Earth’s distance', meaning: 'how many times farther from the Sun than Earth' }],
+      type: 'd^2',
+      note: 'Light spreads over a sphere, and a sphere’s area grows with the square of its radius.',
+    }),
+    hints: () => [
+      'Light spreads out over the surface of an ever-growing sphere.',
+      'The area of a sphere grows with the square of its radius.',
+      '5.2 × 5.2 = ?',
+    ],
+    why: () => ({
+      plain: 'Twice as far means the same light spread over 4× the area. At 5.2× the distance, every square metre of panel catches 1/27 of the light. That’s why Juno’s wings are the size of a basketball court.',
+      formula: `1361 W/m² ÷ 5.2² = ${f(SOLAR_CONSTANT / JUPITER_AU ** 2, 1)} W/m²  →  ${f(JUPITER_AU ** 2, 1)}× weaker`,
+      source: 'Inverse-square law; solar constant from NASA TSIS',
+    }),
+  },
+  array: {
+    id: 'array',
+    label: 'Solar wings',
+    tech: { label: 'Solar array area', question: (_, r) => `Required at 5.2 AU: ${f(r.powerNeededW)} W (load + 10% margin). 28% cells, 0.85 packing, 0.9 ageing, 0.9 low-intensity low-temperature loss. Array area?` },
+    unit: 'm²',
+    sizes: 'arrayM2',
+    applies: (d) => d.power === 'solar',
+    question: (_, r) => `At Jupiter your spacecraft needs ${f(r.powerNeededW)} watts. How big must the solar wings be?`,
+    min: 1,
+    max: 500,
+    truth: (_, r) => r.powerNeededW / r.wPerM2AtJupiter,
+    formula: (_, r) => ({
+      title: 'Solar array far from the Sun',
+      expr: 'area = P ÷ ( S ÷ d² × 0.28 × 0.85 × 0.9 × 0.9 )',
+      vars: [
+        { name: 'P', value: r.powerNeededW, unit: 'W', meaning: 'power you need at Jupiter' },
+        { name: 'S', value: SOLAR_CONSTANT, unit: 'W/m²', meaning: 'sunlight at Earth’s distance' },
+        { name: 'd', value: JUPITER_AU, unit: '× Earth’s distance', meaning: 'Jupiter’s distance from the Sun' },
+      ],
+      type: 'P/(S/d^2*0.28*0.85*0.9*0.9)',
+      note: '0.28: cell efficiency. 0.85: gaps and wiring. 0.9: ageing. 0.9: cells work worse in cold, dim light.',
+    }),
+    hints: (_, r) => [
+      'Near Earth, one m² of good panel gives about 290 W after losses.',
+      `At Jupiter the light is ${f(r.sunlightFactor)}× weaker, and cold, dim light costs another ~10%.`,
+      `${f(r.powerNeededW)} W ÷ ${f(r.wPerM2AtJupiter, 1)} W/m²`,
+    ],
+    why: (_, r) => ({
+      plain: `Each m² gives only ${f(r.wPerM2AtJupiter, 1)} W at Jupiter. NASA’s Juno carries about 60 m² of panels to get roughly 500 W, about what a hair dryer uses.`,
+      formula: `${f(r.powerNeededW)} W ÷ (1361 / 5.2² × 0.28 × 0.85 × 0.9 aging × 0.9 cold-light = ${f(r.wPerM2AtJupiter, 1)} W/m²) = ${f(r.powerNeededW / r.wPerM2AtJupiter, 1)} m²`,
+      source: 'Inverse-square law; Juno power figures from NASA/JPL',
+    }),
+  },
+  lightTime: {
+    id: 'lightTime',
+    label: 'Signal delay',
+    tech: { label: 'One-way light time', question: () => 'One-way light time over 5.2 AU (1 AU = 149.6 million km)?' },
+    unit: 'min',
+    question: () => 'A radio message to Jupiter travels about 780 million km at the speed of light. How long does it take to arrive?',
+    min: 0.1,
+    max: 1000,
+    truth: (_, r) => r.lightMin,
+    formula: () => ({
+      title: 'Light time',
+      expr: 't = dist ÷ c',
+      vars: [
+        { name: 'dist', value: JUPITER_AU * AU_KM, unit: 'km', meaning: 'distance: 5.2 × 149.6 million km' },
+        { name: 'c', value: SPEED_OF_LIGHT, unit: 'km/s', meaning: 'speed of light' },
+      ],
+      type: 'dist/c/60',
+      note: 'The formula gives seconds. Divide by 60 for minutes.',
+    }),
+    hints: () => ['Radio travels at the speed of light: 300,000 km every second.', 'Sunlight takes about 8.3 minutes to cross 1 AU.', '5.2 × 8.3 minutes'],
+    why: (_, r) => ({
+      plain: `Every command takes ~${f(r.lightMin)} minutes to arrive, and the reply takes as long again. No joystick: Juno has to fly its close passes on its own.`,
+      formula: `${f(JUPITER_AU * AU_KM / 1e6)} million km ÷ 299,792 km/s = ${f(r.lightMin * 60)} s = ${f(r.lightMin, 1)} min`,
+      source: 'Speed of light; real Earth–Jupiter distance varies from about 4.2 to 6.2 AU',
+    }),
+  },
+  cruise: {
+    id: 'cruise',
+    label: 'Cheapest trip time',
+    tech: { label: 'Hohmann transfer time', question: () => 'Time of flight on a Hohmann transfer from 1 AU to 5.2 AU?' },
+    unit: 'years',
+    question: () => 'The path that uses the least fuel coasts halfway around the Sun. How long does that trip to Jupiter take?',
+    min: 0.1,
+    max: 30,
+    truth: (_, r) => r.hohmann,
+    formula: () => ({
+      title: 'Hohmann transfer (Kepler’s third law)',
+      expr: 't = ( (1 + d) ÷ 2 )^1.5 ÷ 2',
+      vars: [{ name: 'd', value: JUPITER_AU, unit: 'AU', meaning: 'Jupiter’s distance from the Sun (Earth is at 1)' }],
+      type: '((1+d)/2)^1.5/2',
+      note: 'The path is half of an ellipse. Its size is the average of the two distances, and a full lap takes (size)^1.5 years.',
+    }),
+    hints: () => [
+      'Kepler: an orbit’s period in years = (its average distance in AU)^1.5.',
+      'The transfer ellipse stretches from 1 AU to 5.2 AU, so its average distance is (1 + 5.2) / 2 = 3.1 AU.',
+      'You only fly half the ellipse: 3.1^1.5 ÷ 2',
+    ],
+    why: (d, r) => ({
+      plain: `Juno took ${d.trajectory === 'flyby' ? 'about 5 years' : 'longer than this'} because it first looped back past Earth for a gravity boost. A slower path let a smaller rocket do the job.`,
+      formula: `a = (1 + 5.2)/2 = 3.1 AU → T = 3.1^1.5 = ${f(r.hohmann * 2, 2)} yr → half = ${f(r.hohmann, 2)} years`,
+      source: 'Kepler’s third law (Hohmann transfer)',
+    }),
+  },
+  dataRate: {
+    id: 'dataRate',
+    label: 'Data rate home',
+    tech: { label: 'X-band downlink rate', question: (d, r) => `Link budget: ${d.hga} m HGA (η 0.55), ${f(r.txW)} W RF at 8.4 GHz, 5.2 AU, 34 m DSN antenna (η 0.6), system noise 25 K, Eb/N0 5 dB. Achievable data rate?` },
+    unit: 'kbps',
+    question: (d) => `Your ${d.hga} m dish at Jupiter talks to a giant 34 m NASA antenna on Earth. How fast can you send data?`,
+    min: 0.1,
+    max: 100000,
+    truth: (_, r) => r.kbps,
+    formula: (d, r) => ({
+      title: 'Radio link budget',
+      expr: 'rate = Pt × Gt × Gr ÷ (L × k × Tn × 3.16),  G = eff × (πD ÷ λ)²,  L = (4π × dist ÷ λ)²',
+      vars: [
+        { name: 'Pt', value: r.txW, unit: 'W', meaning: 'radio transmitter power' },
+        { name: 'Dt', value: d.hga, unit: 'm', meaning: 'your dish (efficiency 0.55)' },
+        { name: 'Dr', value: 34, unit: 'm', meaning: 'NASA’s dish on Earth (efficiency 0.6)' },
+        { name: 'lambda', value: 299792458 / 8.4e9, unit: 'm', meaning: 'λ, wavelength at 8.4 GHz' },
+        { name: 'dist', value: JUPITER_AU * AU_KM * 1000, unit: 'm', meaning: 'distance to Earth' },
+        { name: 'k', value: 1.380649e-23, unit: 'J/K', meaning: 'Boltzmann’s constant' },
+        { name: 'Tn', value: 25, unit: 'K', meaning: 'noise temperature of the receiver' },
+      ],
+      type: 'Pt*0.55*(pi*Dt/lambda)^2*0.6*(pi*Dr/lambda)^2/((4*pi*dist/lambda)^2*k*Tn*3.162)/1000',
+      note: '3.16 (5 dB) is how much stronger than the noise each bit must be. Dividing by 1,000 gives kbps.',
+    }),
+    hints: (d) => [
+      'For comparison, home internet runs at around 100,000 kbps (100 Mbps).',
+      'Signal strength falls with distance² but grows with dish area (diameter²).',
+      `Doubling your ${d.hga} m dish would give 4× the rate. A 2.5 m dish gets a few tens of kbps from Jupiter.`,
+    ],
+    why: (d, r) => ({
+      plain: `About ${f(r.kbps)} kbps, slower than a 1990s modem. A single close pass collects ${f(r.gbPerPass, 1)} GB, which takes ${f((r.gbPerPass * 8e6) / r.kbps / 3600, 0)} hours of antenna time to send home.`,
+      formula: `rate = Pt·Gt·Gr / (Ls · k·T · Eb/N0) with Pt ${f(r.txW)} W, ${d.hga} m & 34 m dishes at 8.4 GHz, d = 5.2 AU, T 25 K, 5 dB → ${f(r.kbps, 1)} kbps`,
+      source: 'Free-space link budget; NASA Deep Space Network 34 m antennas',
+    }),
+  },
+  propellant: {
+    id: 'propellant',
+    label: 'Fuel on board',
+    tech: { label: 'Propellant mass', question: (_, r) => `Dry mass ${f(r.dryKg)} kg, total Δv ${f(r.deltaV)} m/s, Isp 280 s. Propellant mass?` },
+    unit: 'kg',
+    question: (_, r) => `Empty, your spacecraft weighs ${f(r.dryKg)} kg. It must change its speed by ${f(r.deltaV)} metres per second in total. How much fuel must it carry?`,
+    min: 10,
+    max: 100000,
+    truth: (_, r) => r.propKg,
+    formula: (_, r) => ({
+      title: 'The rocket equation',
+      expr: 'fuel = m × ( e^(Δv ÷ ve) − 1 )',
+      vars: [
+        { name: 'm', value: r.dryKg, unit: 'kg', meaning: 'spacecraft with empty tanks' },
+        { name: 'dv', value: r.deltaV, unit: 'm/s', meaning: 'Δv, total change of speed needed' },
+        { name: 've', value: 280 * G0, unit: 'm/s', meaning: 'speed of the exhaust (280 s × 9.81 m/s²)' },
+      ],
+      type: 'm*(exp(dv/ve)-1)',
+      note: 'Fuel grows much faster than Δv: you also have to carry the fuel you burn later.',
+    }),
+    hints: () => [
+      'Rockets push propellant out the back. The faster it comes out, the less you need.',
+      'Rocket equation: m_prop = m_dry × (e^(Δv / v_exhaust) − 1). Here v_exhaust ≈ 2,750 m/s.',
+      'When Δv is about half of v_exhaust, you need roughly 65% of your dry mass in propellant.',
+    ],
+    why: (_, r) => ({
+      plain: `Almost half of Juno at launch was propellant. Braking into Jupiter orbit alone takes over 500 m/s.`,
+      formula: `${f(r.dryKg)} × (e^(${f(r.deltaV)} / (280 × 9.81)) − 1) = ${f(r.propKg)} kg`,
+      source: 'Tsiolkovsky rocket equation',
+    }),
+  },
+}

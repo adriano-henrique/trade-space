@@ -1,0 +1,167 @@
+import { fmt as f } from '../../game/medal'
+import type { Metric } from '../../game/types'
+import { AU_KM, SOLAR_CONSTANT, SPEED_OF_LIGHT } from '../../physics/model'
+import type { Design, Result } from './model'
+
+type M = Metric<Design, Result>
+
+export const URANUS_METRICS: Record<string, M> = {
+  sunlight: {
+    id: 'sunlight',
+    label: 'Sunlight at Uranus',
+    unit: '× weaker',
+    question: () => 'Uranus is 19.2 times farther from the Sun than Earth. How many times weaker is sunlight there?',
+    min: 1,
+    max: 10000,
+    truth: (_, r) => r.sunlightFactor,
+    formula: () => ({
+      title: 'Inverse-square law',
+      expr: 'times weaker = d²',
+      vars: [{ name: 'd', value: 19.2, unit: '× Earth’s distance', meaning: 'how many times farther from the Sun than Earth' }],
+      type: 'd^2',
+      note: 'Light spreads over a sphere, and a sphere’s area grows with the square of its radius.',
+    }),
+    hints: () => ['Same rule as Jupiter: light spreads over the area of a growing sphere.', 'Area grows with distance squared.', '19.2 × 19.2 = ?'],
+    why: (_, r) => ({
+      plain: `${f(r.sunlightFactor)}× weaker. A square metre of panel would make under 1 W. That’s why every mission beyond Jupiter so far has carried nuclear RTGs.`,
+      formula: `1361 W/m² ÷ 19.2² = ${f(1361 / r.sunlightFactor, 2)} W/m² → ${f(r.sunlightFactor)}× weaker`,
+      source: 'Inverse-square law; solar constant from NASA TSIS',
+    }),
+  },
+  lightTime: {
+    id: 'lightTime',
+    label: 'Signal delay',
+    tech: { label: 'One-way light time', question: () => 'One-way light time over 19.2 AU?' },
+    unit: 'hours',
+    question: () => 'A radio message to Uranus travels about 2.9 billion km at the speed of light. How long does it take to arrive?',
+    min: 0.01,
+    max: 100,
+    truth: (_, r) => r.lightHours,
+    formula: () => ({
+      title: 'Light time',
+      expr: 't = dist ÷ c',
+      vars: [
+        { name: 'dist', value: 19.2 * AU_KM, unit: 'km', meaning: 'distance: 19.2 × 149.6 million km' },
+        { name: 'c', value: SPEED_OF_LIGHT, unit: 'km/s', meaning: 'speed of light' },
+      ],
+      type: 'dist/c/3600',
+      note: 'The formula gives seconds. Divide by 3,600 for hours.',
+    }),
+    hints: () => ['Sunlight needs about 8.3 minutes per AU.', '19.2 × 8.3 minutes, then convert to hours.', '≈ 160 minutes'],
+    why: (_, r) => ({
+      plain: `${f(r.lightHours, 1)} hours each way. Ask a question and the answer arrives over 5 hours later. The probe’s entire descent is over before Earth even hears it began.`,
+      formula: `19.2 × ${f(AU_KM / 1e6, 1)} million km ÷ 299,792 km/s = ${f(r.lightHours * 3600)} s = ${f(r.lightHours, 2)} h`,
+      source: 'Speed of light',
+    }),
+  },
+  cruise: {
+    id: 'cruise',
+    label: 'Cheapest trip time',
+    tech: { label: 'Hohmann transfer time', question: () => 'Time of flight on a Hohmann transfer from 1 AU to 19.2 AU, no gravity assist?' },
+    unit: 'years',
+    question: () => 'With no slingshot, the path that uses the least fuel coasts halfway around the Sun. How long does that trip to Uranus take?',
+    min: 0.5,
+    max: 100,
+    truth: (_, r) => r.hohmann,
+    formula: () => ({
+      title: 'Hohmann transfer (Kepler’s third law)',
+      expr: 't = ( (1 + d) ÷ 2 )^1.5 ÷ 2',
+      vars: [{ name: 'd', value: 19.2, unit: 'AU', meaning: 'Uranus’s distance from the Sun (Earth is at 1)' }],
+      type: '((1+d)/2)^1.5/2',
+      note: 'The path is half of an ellipse. Its size is the average of the two distances, and a full lap takes (size)^1.5 years.',
+    }),
+    hints: () => ['Kepler: period in years = (average distance in AU)^1.5.', 'Average of 1 and 19.2 AU is 10.1 AU.', '10.1^1.5 ÷ 2'],
+    why: (d, r) => ({
+      plain: `Sixteen years, and that path needs so much launch energy that almost nothing fits on the rocket. A Jupiter flyby in the right year cuts the trip to about 13 years${d.assist === 'jupiter' ? ` (yours: ${f(r.cruiseYears, 1)})` : ''}.`,
+      formula: `a = (1 + 19.2)/2 = 10.1 AU → 10.1^1.5 / 2 = ${f(r.hohmann, 1)} years`,
+      source: 'Kepler’s third law (Hohmann transfer)',
+    }),
+  },
+  rtgPower: {
+    id: 'rtgPower',
+    label: 'One nuclear battery at the end',
+    tech: { label: 'RTG output at end of mission', question: (d, r) => `A Next-Gen RTG gives 245 W at beginning of life and decays about 2% per year. Output per unit at T+${f(r.cruiseYears + d.tourYears)} years?` },
+    unit: 'W',
+    question: (d, r) => `A new RTG makes 245 W and loses about 2% per year. How much will each give at the end of your tour, ${f(r.cruiseYears + d.tourYears)} years after launch?`,
+    min: 10,
+    max: 1000,
+    truth: (_, r) => r.rtgEachEndW,
+    formula: (d, r) => ({
+      title: 'Radioactive decay',
+      expr: 'P = P₀ × 0.98^years',
+      vars: [
+        { name: 'P0', value: 245, unit: 'W', meaning: 'P₀, output of one nuclear battery when new' },
+        { name: 'years', value: r.cruiseYears + d.tourYears, unit: 'years', meaning: 'time from launch to the end of your tour' },
+      ],
+      type: 'P0*0.98^years',
+      note: 'Losing 2% a year means keeping 98%, year after year.',
+    }),
+    hints: () => ['Plutonium-238 decays, and the thermocouples that turn heat into electricity wear out.', 'Each year you keep 98% of last year’s power.', '245 × 0.98^years'],
+    why: (d, r) => ({
+      plain: `About ${f(r.rtgEachEndW)} W each. Your load needs ${f(r.powerNeededW)} W, so you need ${Math.ceil(r.powerNeededW / r.rtgEachEndW)} RTGs. Plan for the end of the mission, not the launch pad.`,
+      formula: `245 × 0.98^${f(r.cruiseYears + d.tourYears, 1)} = ${f(r.rtgEachEndW)} W`,
+      source: 'Next-Generation RTG class figures (simplified)',
+    }),
+  },
+  dataRate: {
+    id: 'dataRate',
+    label: 'Data rate home',
+    tech: { label: 'X-band downlink rate', question: (d, r) => `Link budget: ${d.hga} m HGA (η 0.55), ${f(r.txW)} W RF at 8.4 GHz, 19.2 AU, 34 m DSN antenna (η 0.6), system noise 25 K, Eb/N0 5 dB. Achievable data rate?` },
+    unit: 'kbps',
+    question: (d) => `Your ${d.hga} m dish at Uranus talks to a giant 34 m NASA antenna on Earth. How fast can you send data?`,
+    min: 0.01,
+    max: 10000,
+    truth: (_, r) => r.kbps,
+    formula: (d, r) => ({
+      title: 'Radio link budget',
+      expr: 'rate = Pt × Gt × Gr ÷ (L × k × Tn × 3.16),  G = eff × (πD ÷ λ)²,  L = (4π × dist ÷ λ)²',
+      vars: [
+        { name: 'Pt', value: r.txW, unit: 'W', meaning: 'radio transmitter power' },
+        { name: 'Dt', value: d.hga, unit: 'm', meaning: 'your dish (efficiency 0.55)' },
+        { name: 'Dr', value: 34, unit: 'm', meaning: 'NASA’s dish on Earth (efficiency 0.6)' },
+        { name: 'lambda', value: 299792458 / 8.4e9, unit: 'm', meaning: 'λ, wavelength at 8.4 GHz' },
+        { name: 'dist', value: 19.2 * AU_KM * 1000, unit: 'm', meaning: 'distance to Earth' },
+        { name: 'k', value: 1.380649e-23, unit: 'J/K', meaning: 'Boltzmann’s constant' },
+        { name: 'Tn', value: 25, unit: 'K', meaning: 'noise temperature of the receiver' },
+      ],
+      type: 'Pt*0.55*(pi*Dt/lambda)^2*0.6*(pi*Dr/lambda)^2/((4*pi*dist/lambda)^2*k*Tn*3.162)/1000',
+      note: '3.16 (5 dB) is how much stronger than the noise each bit must be. Dividing by 1,000 gives kbps.',
+    }),
+    hints: () => ['From Jupiter (5.2 AU) a 2.5 m dish gives roughly 40 kbps.', 'Signal falls with distance²: (19.2 / 5.2)² ≈ 13.6× weaker.', 'A 4 m dish collects (4/2.5)² = 2.6× more.'],
+    why: (d, r) => ({
+      plain: `${f(r.kbps, 1)} kbps, slower than an old dial-up modem. A year of antenna time moves only ${f(r.gbDownPerYear, 1)} GB, so every picture has to earn its place.`,
+      formula: `Link budget: ${f(r.txW)} W, ${d.hga} m & 34 m dishes, 8.4 GHz, 19.2 AU → ${f(r.kbps, 2)} kbps`,
+      source: 'Free-space link budget; NASA Deep Space Network',
+    }),
+  },
+  array: {
+    id: 'array',
+    label: 'Solar wings',
+    tech: { label: 'Solar array area', question: (_, r) => `Required at 19.2 AU: ${f(r.powerNeededW)} W. 28% cells, 0.85 packing, 0.9 ageing, 0.8 low-intensity low-temperature loss. Array area?` },
+    unit: 'm²',
+    sizes: 'arrayM2',
+    applies: (d) => d.power === 'solar',
+    question: (_, r) => `You chose solar. Your spacecraft needs ${f(r.powerNeededW)} watts at Uranus. How big must the solar wings be?`,
+    min: 1,
+    max: 10000,
+    truth: (_, r) => r.powerNeededW / r.solarWPerM2,
+    formula: (_, r) => ({
+      title: 'Solar array far from the Sun',
+      expr: 'area = P ÷ ( S ÷ d² × 0.28 × 0.85 × 0.9 × 0.8 )',
+      vars: [
+        { name: 'P', value: r.powerNeededW, unit: 'W', meaning: 'power you need at Uranus' },
+        { name: 'S', value: SOLAR_CONSTANT, unit: 'W/m²', meaning: 'sunlight at Earth’s distance' },
+        { name: 'd', value: 19.2, unit: '× Earth’s distance', meaning: 'Uranus’s distance from the Sun' },
+      ],
+      type: 'P/(S/d^2*0.28*0.85*0.9*0.8)',
+      note: '0.28: cell efficiency. 0.85: gaps and wiring. 0.9: ageing. 0.8: cells work worse in very cold, very dim light.',
+    }),
+    hints: (_, r) => ['Near Earth, a m² gives ~290 W.', `At Uranus the light is ${f(r.sunlightFactor)}× weaker, and very cold, dim light hurts cells further.`, `${f(r.powerNeededW)} W ÷ ${f(r.solarWPerM2, 2)} W/m²`],
+    why: (_, r) => ({
+      plain: `About ${f(r.powerNeededW / r.solarWPerM2)} m², bigger than a football pitch. Juno proved solar works at Jupiter; at Uranus it doesn’t.`,
+      formula: `${f(r.powerNeededW)} W ÷ ${f(r.solarWPerM2, 2)} W/m² = ${f(r.powerNeededW / r.solarWPerM2)} m²`,
+      source: 'Inverse-square law',
+    }),
+  },
+}
+

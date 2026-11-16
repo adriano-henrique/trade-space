@@ -1,0 +1,369 @@
+@import 'tailwindcss';
+
+/*
+  Look: a launch site in daylight. You build on the ground under a blue sky, with chunky inked
+  parts like a model kit, and the screen only goes dark when the rocket reaches space.
+*/
+@theme {
+  --color-sky: oklch(0.88 0.07 228);
+  --color-sky-deep: oklch(0.76 0.105 236);
+  --color-paper: oklch(0.985 0.012 95);
+  --color-paper-2: oklch(0.945 0.022 95);
+  --color-ink: oklch(0.24 0.06 268);
+  --color-ink-soft: oklch(0.43 0.05 265);
+  --color-sun: oklch(0.87 0.17 92);
+  --color-rocket: oklch(0.64 0.21 32);
+  --color-leaf: oklch(0.74 0.17 150);
+  --color-grape: oklch(0.56 0.19 300);
+  --color-space: oklch(0.17 0.045 275);
+  --color-space-2: oklch(0.25 0.06 275);
+  --color-star: oklch(0.96 0.02 95);
+  --font-display: 'Titan One', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
+  --font-sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+body {
+  background: var(--color-sky);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chunky pressable button: sits on a hard ink shadow and sinks when pressed. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.1;
+  color: var(--color-ink);
+  background: var(--color-sun);
+  border: 3px solid var(--color-ink);
+  border-radius: 16px;
+  padding: 0.65rem 1.15rem;
+  box-shadow: 0 5px 0 var(--color-ink);
+  transition:
+    transform 0.09s var(--ease-out),
+    box-shadow 0.09s var(--ease-out);
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 var(--color-ink);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--color-ink);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn:focus-visible,
+.pick:focus-visible,
+.chip:focus-visible {
+  outline: 3px solid var(--color-grape);
+  outline-offset: 3px;
+}
+.btn-plain {
+  background: var(--color-paper);
+}
+.btn-go {
+  background: var(--color-rocket);
+  color: var(--color-paper);
+}
+.btn-small {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--color-ink);
+}
+.btn-small:hover:not(:disabled) {
+  box-shadow: 0 4px 0 var(--color-ink);
+}
+.btn-small:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.btn-dark {
+  border-color: var(--color-star);
+  box-shadow: 0 5px 0 oklch(0.96 0.02 95 / 0.35);
+}
+
+/* One option among a few. Selected = filled with sun and pressed down. */
+.pick {
+  border: 3px solid var(--color-ink);
+  border-radius: 14px;
+  background: var(--color-paper);
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  box-shadow: 0 4px 0 var(--color-ink);
+  transition:
+    transform 0.09s var(--ease-out),
+    box-shadow 0.09s var(--ease-out),
+    background-color 0.15s;
+  cursor: pointer;
+}
+.pick:hover {
+  background: var(--color-paper-2);
+}
+.pick[aria-pressed='true'],
+.pick[aria-checked='true'] {
+  background: var(--color-sun);
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--color-ink);
+}
+
+.sheet {
+  background: var(--color-paper);
+  border: 3px solid var(--color-ink);
+  border-radius: 24px;
+}
+
+input[type='range'].slide {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-paper-2);
+  border: 3px solid var(--color-ink);
+  cursor: pointer;
+}
+input[type='range'].slide::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-sun);
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 3px 0 var(--color-ink);
+  cursor: grab;
+}
+input[type='range'].slide::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-sun);
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 3px 0 var(--color-ink);
+  cursor: grab;
+}
+input[type='range'].slide:focus-visible {
+  outline: 3px solid var(--color-grape);
+  outline-offset: 4px;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop {
+  animation: pop 0.4s var(--ease-out) both;
+}
+/* A part snapping onto the spacecraft. */
+@keyframes snap {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.snap {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: snap 0.35s var(--ease-out) both;
+}
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: scale(2.4) rotate(-14deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-6deg);
+  }
+}
+.stamp {
+  animation: stamp 0.45s var(--ease-out) both;
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3px, 2px);
+  }
+  40% {
+    transform: translate(3px, -2px);
+  }
+  60% {
+    transform: translate(-2px, -1px);
+  }
+  80% {
+    transform: translate(2px, 1px);
+  }
+}
+.shake {
+  animation: shake 0.22s linear infinite;
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.bob {
+  animation: bob 5s ease-in-out infinite;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+.nudge {
+  animation: nudge 1.4s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes count {
+  from {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+.count {
+  animation: count 0.9s var(--ease-out) both;
+}
+
+.space {
+  background:
+    radial-gradient(1.5px 1.5px at 12% 22%, var(--color-star) 50%, transparent 52%),
+    radial-gradient(1px 1px at 68% 78%, var(--color-star) 50%, transparent 52%),
+    radial-gradient(2px 2px at 41% 63%, var(--color-star) 50%, transparent 52%),
+    radial-gradient(1px 1px at 88% 17%, var(--color-star) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 27% 86%, var(--color-star) 50%, transparent 52%),
+    radial-gradient(1px 1px at 55% 9%, var(--color-star) 50%, transparent 52%),
+    var(--color-space);
+  background-size:
+    340px 340px,
+    290px 290px,
+    410px 410px,
+    260px 260px,
+    370px 370px,
+    310px 310px,
+    auto;
+  color: var(--color-star);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop,
+  .snap,
+  .stamp,
+  .shake,
+  .bob,
+  .nudge,
+  .count {
+    animation: none;
+  }
+}
+
+/* Launch: a clean climb, or a rocket that is too heavy and falls back. */
+@keyframes climb {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-560px);
+  }
+}
+.climb {
+  animation: climb 3.2s cubic-bezier(0.55, 0, 0.9, 0.45) both;
+}
+@keyframes struggle {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  45% {
+    transform: translateY(-74px) rotate(0);
+  }
+  62% {
+    transform: translateY(-80px) rotate(5deg);
+  }
+  100% {
+    transform: translateY(18px) rotate(38deg);
+  }
+}
+.struggle {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: struggle 3s cubic-bezier(0.4, 0, 0.7, 0.6) both;
+}
+@keyframes sink {
+  to {
+    transform: translateY(240px);
+  }
+}
+.sink {
+  animation: sink 3.2s cubic-bezier(0.55, 0, 0.9, 0.45) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .climb,
+  .struggle,
+  .sink {
+    animation-duration: 0.01s;
+  }
+}

@@ -1,0 +1,114 @@
+# Space Apps 2026 submission draft · Team Rising Crest
+
+Challenge: **Space Mission Design Game**. Deadline: **Sun 15 Nov, 23:59 (Nova Iguaçu local time)**.
+Everything below is a draft: edit freely, then paste into the Project tab. Fill the two links once deployed.
+
+---
+
+## Project name
+Trade Space: guess like an engineer, fly what NASA flew, design what NASA hasn’t
+
+## High-level summary
+Trade Space is a browser game where you design a complete space mission and every number is real
+physics. Before the game reveals a number, you estimate it (orbit period, battery size, signal delay,
+data rate) and get a medal for how close your engineer’s gut was, then a "Why?" card shows the
+formula with your own numbers plugged in. You can replay history (SMAP 2015, Juno 2011) against
+NASA’s real design, real solar storms from NASA DONKI and the real events of each mission, or design
+the future: NASA’s top-priority Uranus Orbiter & Probe, with launch windows computed from real JPL
+Horizons planet positions. After each flight, the game searches every possible design (up to 27,000)
+and shows the Pareto frontier, proving there is rarely a single right answer.
+
+## Link to project demo
+https://trade-space-one.vercel.app/demo/
+
+## Link to final project
+https://trade-space-one.vercel.app
+
+## Project details
+**What it does.** Players pick a mission, hire a four-person crew whose members each bring one edge, make engineering decisions (orbit, instruments, power,
+communications, trajectory, rocket), watch a live budget of mass, cost, power and data, and fly the
+mission through a timeline. Three missions:
+- **SMAP (2015), tutorial:** low Earth orbit, eclipse and battery sizing, radiometer resolution vs
+  swath, downlink. The 26 geomagnetic storms of 2015 come from NASA DONKI, including the St. Patrick’s
+  Day storm six weeks after launch, plus SMAP’s real radar failure on 7 July 2015.
+- **Juno (2011):** solar power at 1/27 sunlight, Earth-flyby trajectory vs direct launch, polar orbit
+  vs radiation belts, a real X-band link budget. Juno’s real history plays out: Earth flyby, Jupiter
+  arrival, the 2016 valve problem, the 2019 eclipse-dodging burn.
+- **Uranus Orbiter & Probe (future):** pick the launch year from a window chart built from real
+  Jupiter and Uranus positions (JPL Horizons). RTG decay, a 19 AU link budget, the probe, aerocapture
+  risk, and arriving before Uranus’s ~2049 equinox to see moon hemispheres Voyager 2 never saw.
+
+**How it teaches.**
+1. *Engineer’s Gut*: numbers stay locked as "??" until you estimate them on a log slider (orders of
+   magnitude are what matter). Three levels play the same missions with the same physics and differ
+   in the help on each estimate: *Explorer* gets a 3-step clue ladder, the formula and a calculator
+   that fills in the design’s numbers; *Student* gets the formula and does the working out;
+   *Engineer* gets no help, types a number and is graded strictly. Stars are kept per level.
+2. You size the solar array and battery yourself, and the real requirement is revealed only in flight,
+   so a low guess drains the battery on the first night.
+3. Failures are paired with real history (Opportunity’s dust storm, Galileo’s stuck antenna, the
+   Starlink storm losses).
+4. *Ghost comparison*: your design next to NASA’s, with "what NASA chose and why".
+5. The *Pareto frontier*: an exhaustive search of every design (16k for SMAP, 3k for Juno, 27k for
+   Uranus) plots cost vs science and tells you if a cheaper design beats yours.
+
+**Validity.** The physics is standard and unit-tested: Kepler’s laws, the cylindrical-shadow eclipse
+model, the diffraction limit, the rocket equation, the inverse-square law, a free-space link budget
+and Hohmann transfers. Calibrated checks: NASA’s real SMAP choices give 867 kg (real 944 kg); Juno
+gives 582 W at Jupiter (real ~500 W) and 3,432 kg (real 3,625 kg). For Uranus, the search alone,
+with no hints, converges on NASA’s concept study: 2031 launch, Jupiter assist, 3 RTGs, probe, Falcon
+Heavy. Part masses and prices are simplified and labelled as such in the game.
+
+**Extras.** A live Voyager 1 strip interpolates JPL Horizons data to show its one-way light time
+crossing one full light-day this week.
+
+**Tools.** TypeScript, React 19, Vite, Tailwind CSS, Vitest. Runs entirely in the browser, with no
+account and no download.
+
+**Impact.** Students rarely get to experience a whole mission from concept to operations. Trade Space
+makes the trade-offs tangible in about 10 minutes per mission, works on any laptop or phone, and every
+number can be traced to its source.
+
+## Use of Super Intelligence (SI) tools
+We used an AI coding assistant (Claude) to help write and refactor TypeScript, look up mission facts,
+and draft explanatory text; every fact shown as real is listed in VERIFY.md for the team to check.
+ChatGPT generated our team avatar image. The physics models were verified with unit tests against
+known values (ISS period, SMAP orbit, Hohmann time to Jupiter, one light-day).
+
+## NASA data
+- NASA DONKI (Space Weather Database), geomagnetic storms 2015, via api.nasa.gov
+- JPL Horizons API: Voyager 1 range; Jupiter and Uranus heliocentric positions 2026–2064
+- NASA/JPL mission pages: SMAP, Juno; NASA Uranus Orbiter and Probe concept study
+- NASA solar irradiance (TSIS/SORCE) solar constant; NASA Deep Space Network antenna parameters
+- Challenge resources: Concept Maturity Levels (JPL), Mission Design Lab (GSFC)
+
+## Space agency partner & other data
+- Planetary Science and Astrobiology Decadal Survey 2023–2032 (National Academies)
+- Wertz & Larson, *Space Mission Analysis and Design*; Vallado, *Fundamentals of Astrodynamics*
+
+## References
+- https://api.nasa.gov/ · https://ssd.jpl.nasa.gov/horizons/ · https://ccmc.gsfc.nasa.gov/tools/DONKI/
+- https://smap.jpl.nasa.gov/ · https://www.nasa.gov/mission/juno/ · https://science.nasa.gov/mission/juno/
+- https://science.nasa.gov/wp-content/uploads/2023/11/uranus-orbiter-and-probe-uop.pdf
+- Fonts: Titan One, Atkinson Hyperlegible Next (Google Fonts, OFL)
+
+---
+
+## 30-second demo video script
+| Time | Screen | Voice-over / caption |
+|---|---|---|
+| 0–4 s | Title, Voyager strip ticking past 24 h | "Every number in this game is real." |
+| 4–10 s | SMAP: drag altitude, "??" cell → log slider → 🎯 reveal with formula | "Guess like an engineer, then see the physics behind the answer." |
+| 10–16 s | Flight log: St. Patrick’s Day storm card, radar failure echo | "Fly what NASA flew, through real 2015 solar storms." |
+| 16–22 s | Juno trajectory loop, valve-problem echo | "Juno on solar power at Jupiter, and its real history." |
+| 22–27 s | Uranus window chart → Pareto chart, NASA-like design on the frontier | "Design what NASA hasn’t: our search rediscovered NASA’s Uranus plan." |
+| 27–30 s | Team image + URL | "Trade Space · Team Rising Crest" |
+
+## 7-slide alternative
+1. Title + team image
+2. The problem: students learn subsystems in isolation and never see the whole trade space
+3. Engineer’s Gut: estimate → medal → Why? card (screenshot)
+4. Replay history: SMAP and Juno with real DONKI storms and real mission events
+5. Design the future: Uranus launch windows from JPL Horizons
+6. The Pareto frontier, and how we validated the physics against real spacecraft
+7. Impact, next steps (classroom mode, 4-player roles, Portuguese), link

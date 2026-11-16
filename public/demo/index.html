@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trade Space · Demo</title>
+    <meta name="description" content="Trade Space: a browser game where you design a real space mission. Team Rising Crest, NASA Space Apps Challenge 2026." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --sky: oklch(0.88 0.07 228);
+        --paper: oklch(0.985 0.012 95);
+        --paper-2: oklch(0.945 0.022 95);
+        --ink: oklch(0.24 0.06 268);
+        --ink-soft: oklch(0.43 0.05 265);
+        --sun: oklch(0.87 0.17 92);
+        --rocket: oklch(0.64 0.21 32);
+        --leaf: oklch(0.74 0.17 150);
+        --grape: oklch(0.56 0.19 300);
+        --ground: oklch(0.8 0.09 135);
+        --display: 'Titan One', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
+        --sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+        --nav: 72px;
+        /* One unit = 1% of a 16:9 stage that fits above the ground strip. */
+        --u: min(1vw, calc((100vh - var(--nav)) * 0.017778));
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; overflow: hidden; }
+      body {
+        background: var(--sky);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.35;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1, h2, h3, p, ul { margin: 0; padding: 0; }
+      h1, h2, h3, .display { font-family: var(--display); font-weight: 400; line-height: 1.02; letter-spacing: 0.01em; }
+      ul { list-style: none; }
+      a { color: inherit; }
+
+      /* Sky decoration */
+      .cloud { position: fixed; background: oklch(0.97 0.012 200); border-radius: 999px; opacity: 0.9; pointer-events: none; }
+      .cloud::before, .cloud::after { content: ''; position: absolute; background: inherit; border-radius: 50%; }
+      .cloud::before { width: 46%; height: 150%; left: 14%; top: -70%; }
+      .cloud::after { width: 38%; height: 120%; right: 14%; top: -50%; }
+      .c1 { width: 64px; height: 18px; top: 6%; left: 1.2%; }
+      .c2 { width: 72px; height: 20px; top: 15%; right: 0.8%; }
+
+      .deck { position: fixed; inset: 0 0 var(--nav) 0; }
+      .slide { position: absolute; inset: 0; display: none; overflow-y: auto; overflow-x: hidden; cursor: pointer; }
+      .slide.on { display: grid; place-items: center; }
+      .inner {
+        font-size: var(--u);
+        width: 100em;
+        height: 56.25em;
+        padding: 2.6em 4em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2em;
+      }
+      .split { display: grid; gap: 3.2em; align-items: center; min-height: 0; }
+      .col { display: flex; flex-direction: column; gap: 1.6em; min-width: 0; }
+
+      h1 { font-size: 11em; line-height: 0.9; }
+      h1 span { color: var(--rocket); display: block; }
+      h2 { font-size: 4.8em; }
+      h3 { font-size: 2.3em; }
+      .lede { font-size: 2.45em; line-height: 1.25; font-weight: 600; text-wrap: balance; }
+      .text { font-size: 1.95em; }
+      .small { font-size: 1.55em; color: var(--ink-soft); }
+      .red { color: var(--rocket); }
+      .grape { color: var(--grape); }
+      b, strong { font-weight: 700; }
+
+      .list { display: flex; flex-direction: column; gap: 0.55em; font-size: 1.95em; }
+      .list li { position: relative; padding-left: 1.5em; }
+      .list li::before {
+        content: ''; position: absolute; left: 0; top: 0.3em; width: 0.7em; height: 0.7em;
+        background: var(--sun); border: 0.16em solid var(--ink); border-radius: 50%;
+      }
+
+      .card {
+        background: var(--paper); border: 3px solid var(--ink); border-radius: 1.6em;
+        box-shadow: 0 0.55em 0 var(--ink); padding: 1.3em 1.6em;
+      }
+      .card.sun { background: var(--sun); }
+      .card h3 { margin-bottom: 0.25em; }
+      .card p { font-size: 1.75em; line-height: 1.3; }
+      .row { display: grid; gap: 1.6em; }
+      .row.three { grid-template-columns: repeat(3, 1fr); }
+      .row.two { grid-template-columns: repeat(2, 1fr); }
+
+      .shot {
+        margin: 0; background: var(--paper); border: 3px solid var(--ink); border-radius: 1.6em;
+        box-shadow: 0 0.6em 0 var(--ink); overflow: hidden;
+      }
+      .shot img { display: block; width: 100%; height: auto; }
+      .shot.dark { background: oklch(0.17 0.045 275); }
+      figure.fig { margin: 0; display: flex; flex-direction: column; gap: 1.3em; min-width: 0; }
+      figcaption { font-size: 1.55em; color: var(--ink-soft); text-align: center; }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 0.5em; font-size: 1.75em; }
+      .chip { background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; padding: 0.25em 0.85em; font-weight: 600; }
+
+      .big-link {
+        display: inline-flex; align-items: center; gap: 0.5em; align-self: flex-start;
+        font-family: var(--display); font-size: 2.4em; text-decoration: none;
+        background: var(--rocket); color: var(--paper); border: 3px solid var(--ink);
+        border-radius: 0.7em; padding: 0.5em 0.9em; box-shadow: 0 0.22em 0 var(--ink);
+        max-width: 100%; white-space: nowrap;
+      }
+      .big-link:hover { transform: translateY(-1px); }
+      .big-link:focus-visible, .nav button:focus-visible { outline: 3px solid var(--grape); outline-offset: 3px; }
+
+      .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; }
+      .num { text-align: center; padding: 0.9em 0.6em; }
+      .num .display { font-size: 3.4em; display: block; color: var(--grape); }
+      .num span + span { font-size: 1.55em; }
+      .check { display: grid; grid-template-columns: auto 1fr; gap: 0.2em 0.9em; font-size: 1.75em; }
+      .check dt { font-weight: 700; }
+      .check dd { margin: 0; }
+      .num-tab { font-variant-numeric: tabular-nums; }
+
+      /* Ground strip with the controls */
+      .nav {
+        position: fixed; left: 0; right: 0; bottom: 0; height: var(--nav);
+        background: var(--ground); border-top: 3px solid var(--ink);
+        display: flex; align-items: center; justify-content: center; gap: 18px; padding: 0 12px;
+      }
+      .nav button {
+        font-family: var(--display); font-size: 17px; color: var(--ink); background: var(--sun);
+        border: 3px solid var(--ink); border-radius: 14px; padding: 9px 18px; min-width: 112px;
+        box-shadow: 0 4px 0 var(--ink); cursor: pointer; transform: translateY(-2px);
+      }
+      .nav button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
+      .nav button:disabled { opacity: 0.45; cursor: not-allowed; }
+      .nav button.prev { background: var(--paper); }
+      .count { font-family: var(--display); font-size: 22px; min-width: 76px; text-align: center; font-variant-numeric: tabular-nums; }
+
+      /* Slide-specific sizes (desktop) */
+      .s1 .split { grid-template-columns: 1.15fr 0.85fr; }
+      .s2 .split { grid-template-columns: 1.2fr 0.8fr; }
+      .s3 .shots { grid-template-columns: 1fr 1fr; align-items: center; }
+      .s4 .split { grid-template-columns: 1fr 0.8fr; }
+      .s5 .split { grid-template-columns: 0.9fr 1.1fr; }
+      .s6 .split { grid-template-columns: 1.12fr 0.88fr; }
+      .s7 .split { grid-template-columns: 1fr 1fr; }
+      .s7 .col { gap: 1.3em; }
+      .s3 .inner { gap: 1.5em; }
+      .s3 .shots { padding: 0 6em; gap: 3em; }
+      .s3 .card { padding: 0.9em 1.4em; }
+      .team { border-radius: 2.4em; }
+
+      /* Phone: one column, the slide scrolls if it is taller than the screen. */
+      @media (max-width: 760px) {
+        :root { --u: 8.4px; --nav: 64px; }
+        .slide.on { display: block; }
+        .inner { width: 100%; height: auto; min-height: 100%; padding: 2.6em 2em 4em; justify-content: flex-start; gap: 2.2em; }
+        .split, .s1 .split, .s2 .split, .s4 .split, .s5 .split, .s6 .split, .s7 .split,
+        .row.three, .row.two { grid-template-columns: 1fr; }
+        .s3 .shots { grid-template-columns: 1fr; padding: 0; gap: 2em; }
+        h1 { font-size: 9em; }
+        h2 { font-size: 4.2em; }
+        .lede { font-size: 2.3em; }
+        .nums { gap: 0.6em; }
+        .num .display { font-size: 2.9em; }
+        .nav { gap: 10px; }
+        .nav button { min-width: 0; padding: 8px 14px; font-size: 16px; }
+        .cloud { display: none; }
+        .team { max-width: 30em; margin: 0 auto; }
+        .s6 .fig { order: 2; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+
+    <main class="deck" id="deck">
+      <!-- 1. Title -->
+      <section class="slide s1 on" aria-label="Slide 1 of 7: Trade Space">
+        <div class="inner">
+          <div class="split">
+            <div class="col">
+              <h1>Trade <span>Space</span></h1>
+              <p class="lede">Guess like an engineer. Fly what NASA flew. Design what NASA hasn’t.</p>
+              <p class="text">A browser game where you design a complete space mission, and every number is real physics.</p>
+              <p class="text"><b>Team Rising Crest</b> · NASA Space Apps Challenge 2026<br />Challenge: Space Mission Design Game</p>
+            </div>
+            <div class="col">
+              <figure class="shot team"><img src="img/team-image.jpg" alt="Team Rising Crest avatar image" width="1024" height="1024" /></figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Problem -->
+      <section class="slide s2" aria-label="Slide 2 of 7: The problem">
+        <div class="inner">
+          <div class="split">
+            <div class="col">
+              <h2>The problem</h2>
+              <p class="lede">Students learn subsystems one at a time. They never see the <span class="red">whole trade space</span>.</p>
+              <p class="text"><b>Our answer:</b> one whole mission in about 10 minutes.</p>
+              <ul class="list">
+                <li>Hire a four-person crew. Each member brings one edge.</li>
+                <li>Choose the orbit, instruments, power, communications, trajectory and rocket.</li>
+                <li>Watch a live budget of mass, cost, power and data.</li>
+                <li>Launch, and find out if it survives.</li>
+              </ul>
+            </div>
+            <figure class="fig">
+              <div class="shot"><img src="img/build.jpg" alt="The SMAP build screen: spacecraft, goal lights, budget bars and the four crew members" width="935" height="1010" /></div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Engineer's Gut -->
+      <section class="slide s3" aria-label="Slide 3 of 7: Engineer's Gut">
+        <div class="inner">
+          <div class="col" style="gap: 0.8em">
+            <h2>Engineer’s Gut: <span class="grape">guess first</span></h2>
+            <p class="text">Numbers stay locked until you estimate them. You get a medal for how close you were, then a Why? card shows the formula with your own numbers.</p>
+          </div>
+          <div class="row shots">
+            <div class="shot"><img src="img/guess.jpg" alt="Guess card: from 550 km up, how long does one lap around Earth take? A slider and Kepler's third law" width="744" height="503" /></div>
+            <div class="shot"><img src="img/why.jpg" alt="Result card: you said 96 min, real answer 96 min, Bullseye" width="744" height="474" /></div>
+          </div>
+          <div class="row three">
+            <div class="card sun"><h3>Explorer</h3><p>Clues, the formula and a calculator.</p></div>
+            <div class="card"><h3>Student</h3><p>The formula only. You do the working out.</p></div>
+            <div class="card"><h3>Engineer</h3><p>No help. Strict medals.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Replay history -->
+      <section class="slide s4" aria-label="Slide 4 of 7: Replay history">
+        <div class="inner">
+          <div class="split">
+            <div class="col">
+              <h2>Replay history</h2>
+              <p class="lede">Fly real missions against NASA’s real design and real events.</p>
+              <div class="card">
+                <h3>SMAP, 2015</h3>
+                <p>The 26 geomagnetic storms of 2015, from NASA DONKI. SMAP’s real radar failure on 7 July 2015.</p>
+              </div>
+              <div class="card">
+                <h3>Juno, 2011</h3>
+                <p>Solar power at 1/27 sunlight. The Earth flyby, Jupiter arrival and the 2016 valve problem.</p>
+              </div>
+            </div>
+            <figure class="fig">
+              <div class="shot dark"><img src="img/flight.jpg" alt="Flight screen: Mission lost, battery flat on the first night, paired with the Opportunity rover on Mars" width="830" height="850" /></div>
+              <figcaption>Failures are paired with real history. Here: a battery sized too small, and Opportunity’s dust storm.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Design the future -->
+      <section class="slide s5" aria-label="Slide 5 of 7: Design the future">
+        <div class="inner">
+          <div class="split">
+            <div class="col">
+              <h2>Design the future</h2>
+              <p class="lede">The Uranus Orbiter &amp; Probe: NASA’s top priority, and not flown yet.</p>
+              <ul class="list">
+                <li>Pick the launch year from a window chart built from real Jupiter and Uranus positions (JPL Horizons).</li>
+                <li>Face RTG decay, a 19 AU link budget, the probe and aerocapture risk.</li>
+                <li>Arrive before Uranus’s equinox, around 2049.</li>
+              </ul>
+            </div>
+            <figure class="fig">
+              <div class="shot"><img src="img/uranus.jpg" alt="Launch window chart for Uranus: bars for each launch year from 2028 to 2047, tall in 2031, 2032, 2045 and 2046" width="806" height="565" /></div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Pareto + validation -->
+      <section class="slide s6" aria-label="Slide 6 of 7: The Pareto frontier">
+        <div class="inner">
+          <div class="split">
+            <figure class="fig">
+              <div class="shot"><img src="img/pareto.jpg" alt="Chart of every SMAP design, cost against science, with the Pareto frontier as a purple line, NASA's design as a star and the player's design as a red dot" width="1592" height="990" /></div>
+              <figcaption>Every design, cost against science. The purple line is the Pareto frontier.</figcaption>
+            </figure>
+            <div class="col">
+              <h2>The Pareto frontier</h2>
+              <p class="text">After each flight the game tries <b>every possible design</b>. There is rarely one right answer.</p>
+              <div class="nums">
+                <div class="card num"><span class="display">16k</span><span>SMAP</span></div>
+                <div class="card num"><span class="display">3k</span><span>Juno</span></div>
+                <div class="card num"><span class="display">27k</span><span>Uranus</span></div>
+              </div>
+              <h3>Checked against real spacecraft</h3>
+              <dl class="check num-tab">
+                <dt>SMAP</dt><dd>867 kg. Real: 944 kg.</dd>
+                <dt>Juno</dt><dd>3,432 kg. Real: 3,625 kg.</dd>
+                <dt>Uranus</dt><dd>The search alone lands on NASA’s concept study: 2031 launch, Jupiter assist, 3 RTGs.</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Impact + link -->
+      <section class="slide s7" aria-label="Slide 7 of 7: Impact and link">
+        <div class="inner">
+          <div class="split">
+            <div class="col">
+              <h2>Why it matters</h2>
+              <p class="lede">Students rarely get to experience a whole mission, from concept to operations.</p>
+              <ul class="list">
+                <li>About 10 minutes per mission.</li>
+                <li>Any laptop or phone. No account, no download.</li>
+                <li>Every number can be traced to its source.</li>
+              </ul>
+              <div class="col" style="gap: 0.7em">
+                <h3>Next steps</h3>
+                <div class="chips"><span class="chip">Classroom mode</span><span class="chip">4-player roles</span><span class="chip">Portuguese</span></div>
+              </div>
+              <div class="col" style="gap: 0.7em">
+                <h3>Play it now</h3>
+                <a class="big-link" href="https://trade-space-one.vercel.app">trade-space-one.vercel.app</a>
+              </div>
+            </div>
+            <figure class="fig">
+              <div class="shot"><img src="img/title.jpg" alt="Trade Space title screen with the Explorer, Student and Engineer level picker and the three missions" width="1800" height="1036" /></div>
+              <figcaption>Trade Space · Team Rising Crest</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="nav" aria-label="Slides">
+      <button class="prev" id="prev" type="button">Previous</button>
+      <span class="count" id="count" aria-live="polite">1 / 7</span>
+      <button id="next" type="button">Next</button>
+    </nav>
+
+    <script>
+      (function () {
+        var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+        var prev = document.getElementById('prev');
+        var next = document.getElementById('next');
+        var count = document.getElementById('count');
+        var n = slides.length;
+        var i = 0;
+        function show(k, keepHash) {
+          i = Math.max(0, Math.min(n - 1, k));
+          slides.forEach(function (s, j) { s.classList.toggle('on', j === i); });
+          slides[i].scrollTop = 0;
+          count.textContent = i + 1 + ' / ' + n;
+          prev.disabled = i === 0;
+          next.disabled = i === n - 1;
+          if (!keepHash) { try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {} }
+        }
+        function fromHash() {
+          var k = parseInt(location.hash.slice(1), 10);
+          show(isNaN(k) ? 0 : k - 1, true);
+        }
+        prev.addEventListener('click', function () { show(i - 1); });
+        next.addEventListener('click', function () { show(i + 1); });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+          else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+          else if (e.key === 'Home') show(0);
+          else if (e.key === 'End') show(n - 1);
+        });
+        // Click or tap a slide: the left quarter goes back, anywhere else goes forward.
+        document.getElementById('deck').addEventListener('click', function (e) {
+          if (e.target.closest('a, button, video, iframe')) return;
+          show(e.clientX < window.innerWidth * 0.25 ? i - 1 : i + 1);
+        });
+        window.addEventListener('hashchange', fromHash);
+        fromHash();
+      })();
+    </script>
+  </body>
+</html>

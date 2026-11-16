@@ -1,0 +1,166 @@
+{
+  "source": "NASA DONKI (api.nasa.gov/DONKI/GST)",
+  "fetched": "2026-11-15",
+  "range": [
+    "2015-01-31",
+    "2015-12-31"
+  ],
+  "storms": [
+    {
+      "id": "2015-03-17T06:00:00-GST-001",
+      "start": "2015-03-17T06:00Z",
+      "kp": 8,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8031/-1"
+    },
+    {
+      "id": "2015-03-22T06:00:00-GST-001",
+      "start": "2015-03-22T06:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8077/-1"
+    },
+    {
+      "id": "2015-04-10T03:00:00-GST-001",
+      "start": "2015-04-10T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8201/-1"
+    },
+    {
+      "id": "2015-04-16T21:00:00-GST-001",
+      "start": "2015-04-16T21:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8246/-1"
+    },
+    {
+      "id": "2015-05-13T03:00:00-GST-001",
+      "start": "2015-05-13T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8487/-1"
+    },
+    {
+      "id": "2015-05-13T04:30:00-GST-001",
+      "start": "2015-05-13T04:30Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8489/-1"
+    },
+    {
+      "id": "2015-05-19T00:00:00-GST-001",
+      "start": "2015-05-19T00:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8521/-1"
+    },
+    {
+      "id": "2015-06-08T06:00:00-GST-001",
+      "start": "2015-06-08T06:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8621/-1"
+    },
+    {
+      "id": "2015-06-22T18:00:00-GST-001",
+      "start": "2015-06-22T18:00Z",
+      "kp": 8,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8763/-1"
+    },
+    {
+      "id": "2015-06-25T06:00:00-GST-001",
+      "start": "2015-06-25T06:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8802/-1"
+    },
+    {
+      "id": "2015-07-04T13:00:00-GST-001",
+      "start": "2015-07-04T13:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/8862/-1"
+    },
+    {
+      "id": "2015-08-15T09:00:00-GST-001",
+      "start": "2015-08-15T09:00Z",
+      "kp": 7,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9113/-1"
+    },
+    {
+      "id": "2015-08-23T06:00:00-GST-001",
+      "start": "2015-08-23T06:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9162/-1"
+    },
+    {
+      "id": "2015-08-27T03:00:00-GST-001",
+      "start": "2015-08-27T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9200/-1"
+    },
+    {
+      "id": "2015-08-27T21:00:00-GST-001",
+      "start": "2015-08-27T21:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9210/-1"
+    },
+    {
+      "id": "2015-08-28T18:00:00-GST-001",
+      "start": "2015-08-28T18:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9230/-1"
+    },
+    {
+      "id": "2015-09-07T15:00:00-GST-001",
+      "start": "2015-09-07T15:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9274/-1"
+    },
+    {
+      "id": "2015-09-09T03:00:00-GST-001",
+      "start": "2015-09-09T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9294/-1"
+    },
+    {
+      "id": "2015-09-11T06:00:00-GST-001",
+      "start": "2015-09-11T06:00Z",
+      "kp": 7,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9302/-1"
+    },
+    {
+      "id": "2015-09-20T06:00:00-GST-001",
+      "start": "2015-09-20T06:00Z",
+      "kp": 7,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9349/-1"
+    },
+    {
+      "id": "2015-09-20T09:00:00-GST-001",
+      "start": "2015-09-20T09:00Z",
+      "kp": 5,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9352/-1"
+    },
+    {
+      "id": "2015-10-07T18:00:00-GST-001",
+      "start": "2015-10-07T18:00Z",
+      "kp": 7,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9466/-1"
+    },
+    {
+      "id": "2015-11-07T03:00:00-GST-001",
+      "start": "2015-11-07T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9662/-1"
+    },
+    {
+      "id": "2015-11-10T12:00:00-GST-001",
+      "start": "2015-11-10T12:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9682/-1"
+    },
+    {
+      "id": "2015-12-20T03:00:00-GST-001",
+      "start": "2015-12-20T03:00Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9878/-1"
+    },
+    {
+      "id": "2015-12-31T13:30:00-GST-001",
+      "start": "2015-12-31T13:30Z",
+      "kp": 6,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/9956/-1"
+    }
+  ]
+}
