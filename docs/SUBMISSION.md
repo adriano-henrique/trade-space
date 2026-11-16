@@ -1,7 +1,8 @@
-# Space Apps 2026 submission draft · Team Rising Crest
+# Space Apps 2026 submission · Team Rising Crest
 
-Challenge: **Space Mission Design Game**. Deadline: **Sun 15 Nov, 23:59 (Nova Iguaçu local time)**.
-Everything below is a draft: edit freely, then paste into the Project tab. Fill the two links once deployed.
+Challenge: **Space Mission Design Game**. Submitted for judging on Sun 15 Nov 2026.
+This is the text the project page was filled from. The form had no References field, and it took
+"Use of SI tools" as a checklist and "NASA data" as a list of links, so those sections are fuller here.
 
 ---
 
