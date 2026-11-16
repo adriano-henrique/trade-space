@@ -141,6 +141,11 @@ draft explanatory text. It also produced the demo slides. ChatGPT generated the 
 physics models are checked by unit tests against known values, and the facts shown as real are
 listed in [VERIFY.md](VERIFY.md) for the team to check.
 
+## Licence
+
+The code is released under the [MIT License](LICENSE). The data files in [`src/data`](src/data)
+come from NASA and JPL, as listed above.
+
 ## Sources
 
 - [NASA DONKI](https://ccmc.gsfc.nasa.gov/tools/DONKI/) · [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) · [api.nasa.gov](https://api.nasa.gov/)
